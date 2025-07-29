@@ -1,8 +1,8 @@
 # 🌍 IoT-Based Air Quality Monitoring System
 
-![Air Quality Monitor]([images/output_display.jpg](https://github.com/sharad641/IoT-Based-Air-Quality-Monitoring-System/blob/main/images/circuit_diagram.jpg))
+![Air Quality Monitor](https://github.com/sharad641/IoT-Based-Air-Quality-Monitoring-System/blob/main/images/circuit_diagram.jpg)
 
-A cost-effective and scalable IoT system for real-time monitoring of air pollutants, temperature, and humidity using Arduino, MQ135, and DHT11. The system alerts users when pollution levels exceed safe thresholds, enabling better public awareness and health decisions.
+A low-cost, scalable IoT system for real-time monitoring of air pollutants, temperature, and humidity using Arduino, MQ135, and DHT11. Designed to raise environmental awareness and provide alerts when pollution exceeds safe limits.
 
 ---
 
@@ -24,42 +24,40 @@ A cost-effective and scalable IoT system for real-time monitoring of air polluta
 
 ## 🔍 Project Overview
 
-Air pollution from vehicles and industries is a critical environmental and public health issue. This project introduces an **IoT-based air quality monitoring system** that uses affordable components to provide real-time environmental data.
+Air pollution poses major health and environmental risks. This project presents a smart, cost-effective solution using IoT to continuously monitor:
 
-### Key Features:
+- Harmful gases like **CO₂**, **NOₓ**, **NH₃** (via MQ135)
+- **Temperature** and **humidity** (via DHT11)
+- **Visual display** on a 16x2 LCD
+- **Buzzer + LED alerts** when air is unsafe
 
-- Detects harmful gases: **CO₂**, **NOₓ**, **NH₃**
-- Monitors **temperature** and **humidity**
-- Displays live data on an **LCD screen**
-- Buzzer & LED alerts when air quality is poor
-- Built using low-cost components like **Arduino Uno**, **MQ135**, **DHT11**
+The system helps users make informed decisions in real time to avoid polluted environments.
 
 ---
 
 ## 🧠 Working Principle
 
-1. **MQ135 Sensor** reads air pollutants in analog format.
-2. **DHT11 Sensor** provides temperature and humidity.
-3. **Arduino Uno** processes the data.
-4. If gas concentration exceeds a **threshold (e.g., 120 PPM)**:
-   - Buzzer activates
-   - LED turns on
-5. All values are displayed on a **16x2 LCD display**.
+1. **MQ135** detects air pollution (PPM).
+2. **DHT11** captures temperature & humidity.
+3. **Arduino Uno** processes and displays data on LCD.
+4. If gas exceeds a set threshold (e.g., 120 PPM):
+   - **Buzzer** and **LED** alert users.
+5. Data updates every 2 seconds.
 
 ---
 
 ## 🧰 Hardware Components
 
-| Component              | Quantity | Description                                    |
-|------------------------|----------|------------------------------------------------|
-| Arduino Uno            | 1        | Microcontroller board                          |
-| MQ135 Gas Sensor       | 1        | Air quality sensor (CO₂, NOₓ, NH₃)             |
-| DHT11 Sensor           | 1        | Temperature and humidity sensor                |
-| 16x2 LCD Display       | 1        | Shows live data                                |
-| Buzzer                 | 1        | Audio alert when air is unsafe                 |
-| LED                    | 1        | Visual pollution alert                         |
-| Resistors, Breadboard, Jumper wires | As needed | For connections and prototyping        |
-| 5V Power Supply        | 1        | Arduino & component power                     |
+| Component            | Quantity | Function                                           |
+|----------------------|----------|----------------------------------------------------|
+| Arduino Uno          | 1        | Central microcontroller                            |
+| MQ135 Sensor         | 1        | Air quality (CO₂, NOₓ, NH₃) sensor                |
+| DHT11 Sensor         | 1        | Temperature and humidity sensor                    |
+| 16x2 LCD Display     | 1        | Real-time environmental display                    |
+| Buzzer               | 1        | Alerts when air quality is poor                    |
+| LED                  | 1        | Visual indication of unsafe air                    |
+| Breadboard + Wires   | As needed| Prototyping and circuit connections                |
+| 5V Power Supply      | 1        | Powering Arduino and components                    |
 
 ---
 
@@ -70,105 +68,151 @@ Air pollution from vehicles and industries is a critical environmental and publi
   - `LiquidCrystal.h`
   - `DHT.h`
 
-📁 Arduino code: [`ArduinoCode/air_quality_monitor.ino`](ArduinoCode/air_quality_monitor.ino)
+📁 **Arduino Sketch**: `ArduinoCode/air_quality_monitor.ino`
 
----
+```cpp
+#include <LiquidCrystal.h>
+#include <DHT.h>
 
-## 🔌 Circuit Diagram
+// LCD Pins
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-Upload your circuit diagram here and name it `circuit_diagram.jpg`.
+// DHT Sensor
+#define DHTPIN 7
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
 
-```text
-images/circuit_diagram.jpg
+// Buzzer & LED
+int buz = 8;
+int led = 9;
 
+// MQ135 Sensor
+const int aqsensor = A0;
+int threshold = 120;
+
+void setup() {
+  pinMode(buz, OUTPUT);
+  pinMode(led, OUTPUT);
+  pinMode(aqsensor, INPUT);
+  Serial.begin(9600);
+  lcd.begin(16, 2);
+  lcd.clear();
+  dht.begin();
+}
+
+void loop() {
+  int ppm = analogRead(aqsensor);
+  float temp = dht.readTemperature();
+  float hum = dht.readHumidity();
+
+  Serial.print("Air Quality: "); Serial.println(ppm);
+  Serial.print("Temperature: "); Serial.print(temp); Serial.println(" C");
+  Serial.print("Humidity: "); Serial.print(hum); Serial.println(" %");
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("AQ: "); lcd.print(ppm); lcd.print(" ppm");
+
+  lcd.setCursor(0, 1);
+  lcd.print("T:"); lcd.print(temp, 1); lcd.print("C ");
+  lcd.print("H:"); lcd.print(hum, 1); lcd.print("%");
+
+  if (ppm > threshold) {
+    tone(buz, 1000, 200);
+    digitalWrite(led, HIGH);
+    Serial.println("AQ Level HIGH");
+  } else {
+    digitalWrite(led, LOW);
+    digitalWrite(buz, LOW);
+    Serial.println("AQ Level Good");
+  }
+
+  delay(2000); // Wait 2 seconds
+}
+
+🔌 Circuit Diagram
+🖼️ Circuit diagram image embedded from your GitHub:
 
 📟 Output Display
-When the system runs, the 16x2 LCD shows:
-
+When running, the LCD displays:
 AQ: 110 ppm
 T:28.6C H:48.2%
 
-If air quality crosses 120 PPM:
+If air quality is poor (> 120 ppm):
 
-A buzzer will sound.
+🔊 Buzzer activates
 
-A red LED lights up.
-
-LCD continues updating.
+🔴 LED turns on
 
 
 🚨 Alert System
-Air quality threshold: 120 PPM
+| Threshold (PPM) | Status   | Buzzer | LED |
+| --------------- | -------- | ------ | --- |
+| ≤ 120           | Good Air | Off    | Off |
+| > 120           | Poor Air | On     | On  |
+Threshold is customizable in code (threshold = 120).
+🛠️ Setup Instructions
+Assemble components as per the circuit.
 
-If ppm > 120:
+Install DHT & LiquidCrystal libraries in Arduino IDE.
 
-Buzzer sounds (tone(1000, 200))
+Upload the .ino code to your Arduino Uno.
 
-LED turns on
+Open Serial Monitor (9600 baud) to view raw readings.
 
-If ppm <= 120:
-
-Alerts are turned off
-
-This ensures users are warned about unhealthy environmental conditions in real time.
+Watch live updates on LCD and alerts when needed.
 
 📄 Full Project Report
-📄 Download the complete report: Report/IOT_AirPollution_Project_Report.pdf
+📑 Full detailed PDF report available here:
+
+Report/IOT_AirPollution_Project_Report.pdf
 
 Includes:
 
-Abstract
+Abstract & Objectives
 
-Literature Survey
+Literature Review
 
-Methodology
+Proposed Method
 
-Implementation
+Circuit Diagram & Code
 
-Results & Testing
+Test Results & Graphs
 
-Arduino Source Code
-
-Circuit & LCD Output Images
-
+Appendix: Source Code
 📦 Future Enhancements
-Cloud data logging (e.g., Blynk, Thingspeak)
+📡 Send data to cloud platforms (ThingSpeak, Firebase)
 
-Mobile app integration (via WiFi/ESP8266)
+📱 Mobile app/dashboard integration
 
-Particulate Matter sensors (PM2.5/PM10)
+🔍 Add PM2.5 / PM10 sensors
 
-GPS location tagging
+📍 GPS for pollution mapping
 
-Solar-powered units for remote areas
+☀️ Solar power for remote deployment
 
 🧾 License
-This project is open-source under the MIT License.
-
-See LICENSE for details.
+This project is licensed under the MIT License.
+See LICENSE for more information.
 
 🤝 Acknowledgments
-DHT Sensor Library - Adafruit
+Developed under Dept. of CS-ICB, DSATM Bangalore
 
-LiquidCrystal Library - Arduino
-
-Faculty at Dept. of CS-ICB, DSATM Bangalore
-
-“Breathe Clean, Live Green 🌱”
+Libraries: Adafruit DHT, Arduino LCD
+"Breathe Smart. Live Green. Monitor Air Quality in Real Time."
 
 
 ---
 
-## ✅ What You Need to Upload
+### ✅ What's Left for You
 
-In your GitHub repo:
-1. `README.md` → use the file above.
-2. `ArduinoCode/air_quality_monitor.ino` → extracted from your report.
-3. `Report/IOT_AirPollution_Project_Report.pdf` → your provided PDF.
-4. `images/circuit_diagram.jpg` → circuit image (add your own).
-5. `images/output_display.jpg` → LCD screen output image.
-6. `LICENSE` → choose MIT (recommended).
+1. Create these folders in your repo:
+   - `ArduinoCode/air_quality_monitor.ino` (already done)
+   - `Report/IOT_AirPollution_Project_Report.pdf` (add your report)
+2. Ensure image links match GitHub repo (yours already does ✅).
+3. Add `LICENSE` file (`MIT` is fine).
+4. Copy the above `README.md` into your GitHub repository root.
 
----
+Let me know if you'd like a downloadable `.ino` or `.md` file, or help creating a license.
 
-Would you like me to generate the `.ino` file for you now based on the report’s code?
