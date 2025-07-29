@@ -1,6 +1,6 @@
 # 🌍 IoT-Based Air Quality Monitoring System
 
-![Air Quality Monitor](images/output_display.jpg)
+![Air Quality Monitor]([images/output_display.jpg](https://github.com/sharad641/IoT-Based-Air-Quality-Monitoring-System/blob/main/images/circuit_diagram.jpg))
 
 A cost-effective and scalable IoT system for real-time monitoring of air pollutants, temperature, and humidity using Arduino, MQ135, and DHT11. The system alerts users when pollution levels exceed safe thresholds, enabling better public awareness and health decisions.
 
